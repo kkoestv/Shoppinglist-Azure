@@ -12,7 +12,7 @@ HTML_TEMPLATE = """
 <!doctype html>
 <html>
 <head>
-    <title>Shopping List</title>
+    <title>Handlelista</title>
     <style>
         body {
             background-color: #f5f5dc;
@@ -83,8 +83,8 @@ HTML_TEMPLATE = """
         </ul>
 
         <form method="POST" action="/" class="add-item">
-            <input type="text" name="item" placeholder="New item" required>
-            <button type="submit">Add</button>
+            <input type="text" name="item" placeholder="Ny vare" required>
+            <button type="submit">Legg til</button>
         </form>
     </div>
 </body>
