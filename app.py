@@ -2,22 +2,20 @@ from flask import Flask, render_template_string, request, redirect, url_for
 
 app = Flask(__name__)
 
-# Handleliste lagret i minnet som dict: {"Melk": False}
-handleliste = {
+shopping_list = {
     "Melk": False,
     "Brød": False,
     "Egg": False
 }
 
-# HTML + CSS template
 HTML_TEMPLATE = """
 <!doctype html>
 <html>
 <head>
-    <title>Handleliste</title>
+    <title>Shopping List</title>
     <style>
         body {
-            background-color: #f5f5dc; /* beige */
+            background-color: #f5f5dc;
             font-family: 'Segoe UI', sans-serif;
             display: flex;
             justify-content: center;
@@ -26,7 +24,7 @@ HTML_TEMPLATE = """
             margin: 0;
             padding-top: 50px;
         }
-        .notatblokk {
+        .note {
             background-color: white;
             border-radius: 12px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
@@ -50,11 +48,11 @@ HTML_TEMPLATE = """
         input[type="checkbox"] {
             margin-right: 10px;
         }
-        .ferdig {
+        .done {
             text-decoration: line-through;
             color: #777;
         }
-        form.ny-vare {
+        form.add-item {
             margin-top: 20px;
             display: flex;
             gap: 10px;
@@ -70,22 +68,23 @@ HTML_TEMPLATE = """
     </style>
 </head>
 <body>
-    <div class="notatblokk">
-        <h1>Handleliste</h1>
-        <form method="POST" action="/toggle">
-            <ul>
-                {% for vare, ferdig in liste.items() %}
-                    <li>
-                        <input type="checkbox" name="kryss_av" value="{{ vare }}" onchange="this.form.submit()" {% if ferdig %}checked{% endif %}>
-                        <span class="{{ 'ferdig' if ferdig }}">{{ vare }}</span>
-                    </li>
-                {% endfor %}
-            </ul>
-        </form>
+    <div class="note">
+        <h1>Shopping List</h1>
+        <ul>
+            {% for item, done in shopping_list.items() %}
+                <li>
+                    <form method="POST" action="/toggle" style="margin: 0;">
+                        <input type="hidden" name="item" value="{{ item }}">
+                        <input type="checkbox" onchange="this.form.submit()" {% if done %}checked{% endif %}>
+                        <span class="{{ 'done' if done }}">{{ item }}</span>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
 
-        <form method="POST" action="/" class="ny-vare">
-            <input type="text" name="vare" placeholder="Ny vare" required>
-            <button type="submit">Legg til</button>
+        <form method="POST" action="/" class="add-item">
+            <input type="text" name="item" placeholder="New item" required>
+            <button type="submit">Add</button>
         </form>
     </div>
 </body>
@@ -95,18 +94,18 @@ HTML_TEMPLATE = """
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
-        ny_vare = request.form.get("vare")
-        if ny_vare and ny_vare not in handleliste:
-            handleliste[ny_vare] = False
+        item = request.form.get("item")
+        if item and item not in shopping_list:
+            shopping_list[item] = False
         return redirect(url_for("index"))
     
-    return render_template_string(HTML_TEMPLATE, liste=handleliste)
+    return render_template_string(HTML_TEMPLATE, shopping_list=shopping_list)
 
 @app.route("/toggle", methods=["POST"])
 def toggle():
-    kryssa_av = request.form.get("kryss_av")
-    if kryssa_av in handleliste:
-        handleliste[kryssa_av] = not handleliste[kryssa_av]
+    item = request.form.get("item")
+    if item in shopping_list:
+        shopping_list[item] = not shopping_list[item]
     return redirect(url_for("index"))
 
 if __name__ == "__main__":
